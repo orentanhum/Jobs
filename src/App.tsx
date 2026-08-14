@@ -1,6 +1,7 @@
 import './App.css'
-import { useState } from 'react'
-import { ChevronDown, Search, Plus, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Search, Plus, X } from 'lucide-react'
+import { supabase } from './supabase'
 
 // Types
 interface Job {
@@ -357,13 +358,48 @@ const SummaryCard = ({ title, count, icon, color }: {
 
 // Main App Component
 export default function App() {
-  const [jobs, setJobs] = useState<Job[]>(SAMPLE_JOBS)
+  const [jobs, setJobs] = useState<Job[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<Job['status'] | 'All'>('All')
   const [priorityFilter, setPriorityFilter] = useState<Job['priority'] | 'All'>('All')
   const [sourceFilter, setSourceFilter] = useState<Job['source'] | 'All'>('All')
   const [sortBy, setSortBy] = useState('dateAdded')
+  useEffect(() => {
+  const loadJobs = async () => {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error loading jobs:', error)
+      return
+    }
+
+    const mappedJobs: Job[] = (data || []).map(job => ({
+      id: String(job.id),
+      company: job.company || '',
+      position: job.position || '',
+      location: job.location || '',
+      workMode: job.work_mode || 'Remote',
+      fitScore: job.fit_score || 0,
+      priority: job.priority || 'Medium',
+      status: job.status || 'New',
+      dateAdded: job.created_at
+        ? job.created_at.split('T')[0]
+        : '',
+      nextAction: job.next_action || '',
+      source: job.source || 'Other',
+      sourceUrl: job.source_url || '',
+      description: job.description || ''
+    }))
+
+    setJobs(mappedJobs)
+  }
+
+  loadJobs()
+}, [])
 
   // Filter and search jobs
   const filteredJobs = jobs.filter(job => {
@@ -392,18 +428,52 @@ export default function App() {
     offers: jobs.filter(j => j.status === 'Offer').length
   }
 
-  const handleAddJob = (formData: AddJobForm) => {
-    const newJob: Job = {
-      id: String(jobs.length + 1),
-      ...formData,
-      fitScore: Math.floor(Math.random() * 40) + 60,
+const handleAddJob = async (formData: AddJobForm) => {
+  const { data, error } = await supabase
+    .from('jobs')
+    .insert({
+      company: formData.company,
+      position: formData.jobTitle,
+      location: formData.location,
+      work_mode: formData.workMode,
+      fit_score: 0,
+      priority: formData.priority,
       status: 'New',
-      dateAdded: new Date().toISOString().split('T')[0],
-      nextAction: 'Review and apply'
-    }
-    setJobs([newJob, ...jobs])
-    setIsModalOpen(false)
+      next_action: 'Review and apply',
+      source: formData.source,
+      source_url: formData.sourceUrl,
+      description: formData.description
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error adding job:', error)
+    alert('Could not save the job. Check the browser console.')
+    return
   }
+
+  const newJob: Job = {
+    id: String(data.id),
+    company: data.company || '',
+    position: data.position || '',
+    location: data.location || '',
+    workMode: data.work_mode || 'Remote',
+    fitScore: data.fit_score || 0,
+    priority: data.priority || 'Medium',
+    status: data.status || 'New',
+    dateAdded: data.created_at
+      ? data.created_at.split('T')[0]
+      : new Date().toISOString().split('T')[0],
+    nextAction: data.next_action || '',
+    source: data.source || 'Other',
+    sourceUrl: data.source_url || '',
+    description: data.description || ''
+  }
+
+  setJobs(currentJobs => [newJob, ...currentJobs])
+  setIsModalOpen(false)
+}
 
   return (
     <div className="min-h-screen bg-gray-50">
