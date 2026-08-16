@@ -3,3 +3,23 @@
   margin: 0 auto;
   text-align: center;
 }
+
+/* Oren profile photo — links to LinkedIn from the header */
+a[title="Open LinkedIn profile"] {
+  background-image: url('/oren-profile.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  color: transparent !important;
+  overflow: hidden;
+}
+
+/* Oren profile photo — professional profile card */
+aside .bg-gradient-to-br .bg-indigo-500.rounded-full {
+  background-image: url('/oren-profile.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  color: transparent !important;
+  overflow: hidden;
+}
