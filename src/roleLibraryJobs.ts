@@ -1,0 +1,17 @@
+export const roleLibraryJobs = [
+{company:'AT&T',position:'Program Manager Lead',location:'Center District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4444893140',source:'LinkedIn'},
+{company:'Amphenol',position:'Technical Program Manager — High-Speed Cable Assembly & Connectivity',location:'Petah Tikva, Center District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4441820810',source:'LinkedIn'},
+{company:'Cadence',position:'Project / Program Manager — Cadence Services',location:'Petah Tikva, Center District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4405976301',source:'LinkedIn'},
+{company:'Cisco',position:'Senior Software Program Manager',location:'Caesarea, Haifa District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4440527451',source:'LinkedIn'},
+{company:'TBD',position:'Technical Project Manager — Cloud Infrastructure (12-month contract)',location:'Israel',work_mode:'Remote',source_url:'',source:'Other'},
+{company:'Elbit Systems',position:'Program Manager — Network Warfare Business Line',location:'Netanya',work_mode:'Hybrid',source_url:'https://elbitsystemscareer.com/job/?jid=19571',source:'Company Website'},
+{company:'Electreon',position:'Program Manager',location:'Beit Yanai, Center District, Israel',work_mode:'On-site',source_url:'https://www.linkedin.com/jobs/view/4439849632',source:'LinkedIn'},
+{company:'Harmonic',position:'Sr. Technical Program/Project Manager',location:'Caesarea, Haifa District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4451410307',source:'LinkedIn'},
+{company:'Majestic Labs',position:'Technical Program Manager',location:"Ra'anana, Center District, Israel",work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4438980890',source:'LinkedIn'},
+{company:'MicroCon Vision Ltd.',position:'Technical Project Manager',location:'Kfar Saba, Center District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4451556387',source:'LinkedIn'},
+{company:'NiCE',position:'Lead Program Manager',location:"Ra'anana, Center District, Israel",work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4435601071',source:'LinkedIn'},
+{company:'Palo Alto Networks',position:'Technical Program Leader — Enterprise SaaS (Idira)',location:'Petah Tikva, Center District, Israel',work_mode:'On-site',source_url:'https://www.linkedin.com/jobs/view/4432278453',source:'LinkedIn'},
+{company:'Playtika',position:'Tech Program Manager — TechOps & IT Division',location:'Herzliya, Tel Aviv District, Israel',work_mode:'Hybrid',source_url:'https://www.linkedin.com/jobs/view/4421941159',source:'LinkedIn'},
+{company:'Redler Technologies',position:'Senior Project Manager',location:'Kfar Saba, Center District, Israel',work_mode:'On-site',source_url:'https://www.linkedin.com/jobs/view/4449514331',source:'LinkedIn'},
+{company:'Shabak (Israeli Security Agency)',position:'Program Manager — IT Infrastructure (ref 2623)',location:'Merkaz — Central Israel',work_mode:'Hybrid',source_url:'https://il.linkedin.com/jobs/view/program-manager-it-infrastructure-2623-at-shabak-israeli-security-agency-career-4431202418',source:'LinkedIn'}
+].map(j=>({...j,fit_score:0,priority:'Medium',status:'Interested',next_action:'Review fit and decide whether to apply',description:'Imported from Program Manager Role Library — Roles tab'}))
