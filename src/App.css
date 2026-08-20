@@ -4,149 +4,48 @@
   text-align: center;
 }
 
-/* Oren profile photo — links to LinkedIn from the header */
-a[title="Open LinkedIn profile"] {
-  background-image: url('/oren-profile.png') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  color: transparent !important;
-  overflow: hidden;
+a[title="Open LinkedIn profile"] { background-image:url('/oren-profile.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:transparent!important;overflow:hidden; }
+aside .bg-gradient-to-br .bg-indigo-500.rounded-full { background-image:url('/oren-profile.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:transparent!important;overflow:hidden; }
+
+/* New Opportunities: never render the scraped full job page as a giant card. */
+.opportunity-card .opportunity-description{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  overflow:hidden;
+  line-height:1.45;
+  max-height:4.35em;
+}
+.opportunity-card .opportunity-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+@media (max-width:1023px){
+  #root{text-align:left}
+  header>div{height:48px!important;padding-left:12px!important;padding-right:12px!important}
+  header b{font-size:15px}
+  header+div{display:block!important}
+  header+div>aside{min-height:0!important;border-right:0!important;border-bottom:1px solid rgb(226 232 240);padding:8px!important;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;position:sticky;top:0;z-index:20;background:white;box-shadow:0 1px 5px rgb(15 23 42/.06)}
+  header+div>aside button{min-width:0;padding:8px 3px!important;gap:4px!important;justify-content:center;flex-direction:column;font-size:10px!important;line-height:1.05rem;text-align:center;white-space:normal}
+  header+div>aside button svg{width:17px;height:17px;flex:none}
+  header+div>aside button span{margin-left:25px!important;position:absolute;margin-top:-27px}
+  header+div>main{padding:12px!important}
+  main h1{font-size:1.25rem!important} main h1+p{font-size:12px!important}
+  main .md\:grid-cols-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  main .md\:grid-cols-3>:first-child{grid-column:1/-1}
+  main table{min-width:760px;font-size:12px!important} main th,main td{padding:8px!important;white-space:nowrap} main td:first-child{white-space:normal;min-width:155px}
+  .opportunity-card{padding:14px!important;border-radius:14px!important}
+  .opportunity-card .opportunity-head{align-items:flex-start}
+  .opportunity-card .opportunity-title{font-size:16px;line-height:1.25;font-weight:700;margin-top:4px}
+  .opportunity-card .opportunity-meta{font-size:12px;line-height:1.35;margin-top:4px}
+  .opportunity-card .opportunity-description{-webkit-line-clamp:3;font-size:13px;margin-top:10px!important;color:rgb(71 85 105)}
+  .opportunity-card .opportunity-actions{border-top:1px solid rgb(226 232 240);padding-top:10px!important;margin-top:10px!important}
+  .opportunity-card .opportunity-actions button{flex:1;min-width:125px;justify-content:center;padding:9px 10px!important}
+  .opportunity-card .opportunity-link{display:inline-flex;margin-top:8px;font-size:12px;font-weight:700}
 }
 
-/* Oren profile photo — professional profile card */
-aside .bg-gradient-to-br .bg-indigo-500.rounded-full {
-  background-image: url('/oren-profile.png') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  color: transparent !important;
-  overflow: hidden;
-}
-
-/* Mobile: turn the desktop sidebar into a compact horizontal app nav. */
-@media (max-width: 1023px) {
-  #root { text-align: left; }
-
-  header > div {
-    height: 48px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-
-  header b { font-size: 15px; }
-
-  header + div {
-    display: block !important;
-  }
-
-  header + div > aside {
-    min-height: 0 !important;
-    border-right: 0 !important;
-    border-bottom: 1px solid rgb(226 232 240);
-    padding: 8px !important;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 5px;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    box-shadow: 0 1px 5px rgb(15 23 42 / 0.06);
-  }
-
-  header + div > aside button {
-    min-width: 0;
-    padding: 8px 3px !important;
-    gap: 4px !important;
-    justify-content: center;
-    flex-direction: column;
-    font-size: 10px !important;
-    line-height: 1.05rem;
-    text-align: center;
-    white-space: normal;
-  }
-
-  header + div > aside button svg {
-    width: 17px;
-    height: 17px;
-    flex: none;
-  }
-
-  header + div > aside button span {
-    margin-left: 0 !important;
-    position: absolute;
-    margin-top: -27px;
-    margin-left: 25px !important;
-  }
-
-  header + div > main {
-    padding: 12px !important;
-  }
-
-  main h1 { font-size: 1.25rem !important; }
-  main h1 + p { font-size: 12px !important; }
-
-  main > div:first-child {
-    gap: 8px !important;
-  }
-
-  main > div:first-child > button {
-    padding: 8px 10px !important;
-    font-size: 11px !important;
-  }
-
-  /* Filters: search full width, compact filters in two columns. */
-  main .md\:grid-cols-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  main .md\:grid-cols-3 > :first-child {
-    grid-column: 1 / -1;
-  }
-
-  /* Tables remain usable on phones rather than squeezing columns. */
-  main table {
-    min-width: 760px;
-    font-size: 12px !important;
-  }
-
-  main th, main td {
-    padding: 8px !important;
-    white-space: nowrap;
-  }
-
-  main td:first-child {
-    white-space: normal;
-    min-width: 155px;
-  }
-}
-
-@media (max-width: 480px) {
-  header span { margin-right: 8px !important; }
-  header button { font-size: 0 !important; }
-  header button svg { width: 18px; height: 18px; }
-
-  header + div > aside button {
-    font-size: 9px !important;
-  }
-
-  header + div > main {
-    padding: 10px !important;
-  }
-
-  main > div:first-child {
-    align-items: center !important;
-  }
-
-  main > div:first-child > div {
-    flex: 1 1 160px;
-  }
-
-  main > div:first-child > button {
-    margin-left: 0 !important;
-  }
-
-  main .rounded-xl.border.bg-white.p-3 {
-    padding: 10px !important;
-  }
+@media(max-width:480px){
+  header span{margin-right:8px!important} header button{font-size:0!important} header button svg{width:18px;height:18px}
+  header+div>aside button{font-size:9px!important} header+div>main{padding:10px!important}
+  .opportunity-card{padding:12px!important}
+  .opportunity-card .opportunity-description{-webkit-line-clamp:2;max-height:2.9em}
+  .opportunity-card .opportunity-actions button{font-size:11px!important;min-width:115px}
 }
