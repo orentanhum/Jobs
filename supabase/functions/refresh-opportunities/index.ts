@@ -1,36 +1,17 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-type Opportunity={company:string;position:string;location:string;work_mode?:string;source:string;source_url:string;description?:string}
-
+type O={company:string;position:string;location:string;work_mode:string;source:string;source_url:string;description:string;search_term:string}
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type'}
-const roleTerms=['program manager','technical program manager','delivery manager','program director','project manager','pmo','delivery lead']
-const preferredLocations=['haifa','yokneam','caesarea','netanya','herzliya','raanana','kfar saba','tel aviv','petah tikva','north','sharon','israel','remote']
-const profileTerms=[
- ['program management',8],['delivery',8],['technical program',8],['r&d',7],['saas',6],['cloud',5],['aws',5],['azure',5],['devops',5],['ai',5],['artificial intelligence',5],['iot',5],['jira',4],['confluence',4],['datadog',4],['stakeholder',5],['cross-functional',5],['agile',4],['software',4],['hardware',4],['customer',3]
+const targets=[
+['NVIDIA','Senior Program Manager','Yokneam','https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/Senior-Program-Manager_JR2020294'],
+['NVIDIA','Senior Customer Program Manager, AI Datacenter','Tel Aviv / Yokneam','https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Tel-Aviv/Senior-Customer-Program-Manager--AI-Datacenter_JR2017406'],
+['NVIDIA','Senior Technical Program Manager','Yokneam','https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/Israel-Yokneam/Senior-Technical-Program-Manager_JR1997243-1'],
+['NVIDIA','Senior VLSI Program Manager','Yokneam','https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/Israel-Yokneam/Senior-VLSI-Program-Manager_JR2018768'],
+['NVIDIA','Senior Technical Program Manager for Infrastructure – RESS and DC Portfolio','Yokneam','https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/Israel-Yokneam/Senior-Technical-Program-Manager-for-Infrastructure---RESS-and-DC-Portfolio_JR2010882'],
+['NVIDIA','Customer Program Manager - Generative AI','Tel Aviv / Raanana / Yokneam','https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Customer-Program-Manager---Generative-AI_JR2017408'],
+['NVIDIA','Senior Chip Engineering Operations Program Manager','Yokneam','https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/Senior-Chip-Engineering-Operations-Program-Manager_JR2013846'],
+['NVIDIA','Senior Networking IC Test Engineering Program Manager','Yokneam','https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/Senior-Networking-IC-Test-Engineering-Program-Manager_JR2021792']
 ] as const
-
 const norm=(s='')=>s.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()
-function relevant(o:Opportunity){const title=norm(o.position),loc=norm(o.location);return roleTerms.some(x=>title.includes(x))&&preferredLocations.some(x=>loc.includes(x))}
-function fit(o:Opportunity){const text=norm(`${o.position} ${o.description||''}`);let score=62;for(const[t,w]of profileTerms)if(text.includes(t))score+=w;const title=norm(o.position);if(title.includes('program manager')||title.includes('delivery manager'))score+=10;if(norm(o.location).includes('haifa')||norm(o.location).includes('north')||norm(o.location).includes('netanya'))score+=4;return Math.min(98,Math.max(60,score))}
-
-async function fetchRemotive():Promise<Opportunity[]>{
- try{const r=await fetch('https://remotive.com/api/remote-jobs?category=project-management',{headers:{'User-Agent':'JobTrack/1.0'}});if(!r.ok)return[];const d=await r.json();return(d.jobs||[]).map((j:any)=>({company:j.company_name||'Unknown',position:j.title||'',location:j.candidate_required_location||'Remote',work_mode:'Remote',source:'Remotive',source_url:j.url||'',description:(j.description||'').replace(/<[^>]*>/g,' ').slice(0,4000)}))}catch{return[]}
-}
-async function fetchArbeitnow():Promise<Opportunity[]>{
- try{const r=await fetch('https://www.arbeitnow.com/api/job-board-api',{headers:{'User-Agent':'JobTrack/1.0'}});if(!r.ok)return[];const d=await r.json();return(d.data||[]).map((j:any)=>({company:j.company_name||'Unknown',position:j.title||'',location:j.location||'Remote',work_mode:j.remote?'Remote':'On-site/Hybrid',source:'Arbeitnow',source_url:j.url||'',description:(j.description||'').replace(/<[^>]*>/g,' ').slice(0,4000)}))}catch{return[]}
-}
-
-Deno.serve(async(req)=>{
- if(req.method==='OPTIONS')return new Response('ok',{headers:cors})
- try{
-  const supabase=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-  const feeds=(await Promise.all([fetchRemotive(),fetchArbeitnow()])).flat().filter(relevant)
-  const unique=new Map<string,Opportunity>();for(const o of feeds){const key=o.source_url||`${norm(o.company)}|${norm(o.position)}|${norm(o.location)}`;if(key)unique.set(key,o)}
-  const {data:jobs}=await supabase.from('jobs').select('company,position,source_url')
-  const {data:candidates}=await supabase.from('job_candidates').select('company,position,source_url')
-  const existing=new Set([...(jobs||[]),...(candidates||[])].map((x:any)=>x.source_url||`${norm(x.company)}|${norm(x.position)}`))
-  const rows=[...unique.values()].filter(o=>!existing.has(o.source_url||`${norm(o.company)}|${norm(o.position)}`)).map(o=>({...o,fit_score:fit(o),review_status:'New',discovered_at:new Date().toISOString()}))
-  let inserted:any[]=[];if(rows.length){const{data,error}=await supabase.from('job_candidates').insert(rows).select();if(error)throw error;inserted=data||[]}
-  return new Response(JSON.stringify({ok:true,found:feeds.length,new_opportunities:inserted.length,sources:['Remotive','Arbeitnow']}),{headers:{...cors,'Content-Type':'application/json'}})
- }catch(e){return new Response(JSON.stringify({ok:false,error:e instanceof Error?e.message:String(e)}),{status:500,headers:{...cors,'Content-Type':'application/json'}})}
-})
+const fit=(o:O)=>{let n=72,t=norm(o.position+' '+o.description);for(const k of ['program manager','technical','delivery','customer','software','ai','devops','infrastructure','cross functional','stakeholder'])if(t.includes(k))n+=3;if(norm(o.location).includes('yokneam'))n+=4;return Math.min(97,n)}
+async function live(o:O){try{const r=await fetch(o.source_url,{redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 JobTrack/2.0'}});if(!r.ok)return null;const html=await r.text();const text=html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ');if(!norm(text).includes(norm(o.position).slice(0,25)))return null;return {...o,description:text.slice(0,5000)}}catch{return null}}
+Deno.serve(async(req)=>{if(req.method==='OPTIONS')return new Response('ok',{headers:cors});try{const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);const base:O[]=targets.map(x=>({company:x[0],position:x[1],location:x[2],work_mode:'Hybrid / On-site',source:'Company careers',source_url:x[3],description:'',search_term:'Israel Program/Delivery Manager'}));const checked=(await Promise.all(base.map(live))).filter(Boolean) as O[];const [{data:jobs},{data:cands}]=await Promise.all([db.from('jobs').select('company,position,source_url'),db.from('job_candidates').select('company,position,source_url')]);const key=(x:any)=>`${norm(x.company)}|${norm(x.position)}`;const known=new Set([...(jobs||[]),...(cands||[])].map(key));const rows=checked.filter(x=>!known.has(key(x))).map(x=>({...x,fit_score:fit(x),priority:fit(x)>=90?'High':'Medium',review_status:'New',discovered_at:new Date().toISOString()}));let inserted:any[]=[];if(rows.length){const r=await db.from('job_candidates').insert(rows).select('id,company,position,fit_score');if(r.error)throw r.error;inserted=r.data||[]}return new Response(JSON.stringify({ok:true,architecture:'israel-company-careers-v2',scanned:base.length,live:checked.length,duplicates:checked.length-rows.length,new_opportunities:inserted.length,inserted}),{headers:{...cors,'Content-Type':'application/json'}})}catch(e){return new Response(JSON.stringify({ok:false,error:e instanceof Error?e.message:String(e)}),{status:500,headers:{...cors,'Content-Type':'application/json'}})}})
