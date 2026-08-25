@@ -16,7 +16,41 @@ const STATUSES=['New','Interested','Applied','Interview Scheduled','Interviewed'
 const Fit=({n}:{n:number})=><span className={`rounded-full px-2 py-1 text-xs font-bold ${n>=93?'bg-emerald-100 text-emerald-700':n>=85?'bg-sky-100 text-sky-700':'bg-amber-100 text-amber-700'}`}>{n||0}%</span>
 const date=(v?:string)=>v?new Date(v).toLocaleDateString():'—'
 const cleanDescription=(s='')=>{let t=s.replace(/&[a-z]+;/gi,' ').replace(/\s+/g,' ').trim();const markers=['Description ','Job Description ','Key job responsibilities '];for(const m of markers){const i=t.indexOf(m);if(i>0)t=t.slice(i+m.length)}return t.slice(0,1400)}
-const knowledgeGrade=(skill:string)=>{const s=skill.toLowerCase();const rules:[string[],number][]=[[['program management','project management','delivery management','stakeholder management','cross-functional','leadership','team management','r&d','professional services','customer','agile','scrum','waterfall','software development','system integration'],95],[['saas','iot','aws','computer vision','artificial intelligence','ai','azure devops','devops','jira','confluence','release management','ci/cd','cicd','datadog','observability'],85],[['oracle','sql','java','j2ee','c++','delphi'],80],[['azure','cloud','data','hardware'],80]];for(const[keys,grade]of rules)if(keys.some(k=>s.includes(k)))return grade;return 65}
+const KNOWLEDGE_PROFILE:Record<string,number>={
+'Agile / Scrum':92,
+'AI / Automation':82,
+'APIs / Integration':85,
+'Automotive / ADAS':65,
+'Budget / Financial Management':90,
+'Cloud / SaaS':88,
+'Cross-functional Leadership':98,
+'Customer-facing Delivery':98,
+'Cybersecurity':68,
+'DevOps / CI/CD':85,
+'Executive Communication':95,
+'Hardware / Systems':78,
+'Healthcare / Life Sciences':88,
+'Industrial AI / Data Solutions':80,
+'Infrastructure Delivery':84,
+'Innovation / Research Programs':88,
+'Jira / Confluence':92,
+'Metrics / Data-driven':88,
+'People Leadership':98,
+'Portfolio / Governance':94,
+'Process Improvement':95,
+'Product Lifecycle / NPI':78,
+'Program Management':98,
+'R&D / Engineering':95,
+'Release Management':92,
+'Risk & Issue Management':97,
+'Roadmap & Planning':95,
+'Software Delivery':100,
+'Stakeholder Management':98,
+'System Integration & Validation':92,
+'Technical Project Management':97,
+'Vendor / Procurement Management':88,
+}
+const knowledgeGrade=(skill:string)=>{const exact=KNOWLEDGE_PROFILE[skill];if(exact!==undefined)return exact;const s=skill.toLowerCase();const aliases:[string[],number][]=[[['software delivery','software development'],100],[['program management'],98],[['technical project management','project management'],97],[['delivery management'],98],[['stakeholder'],98],[['cross-functional'],98],[['customer-facing','customer delivery','professional services'],98],[['people leadership','team management','leadership'],98],[['r&d','engineering management'],95],[['roadmap','planning'],95],[['risk','issue management'],97],[['executive communication','communication'],95],[['process improvement'],95],[['portfolio','governance'],94],[['agile','scrum'],92],[['release management'],92],[['jira','confluence'],92],[['system integration','validation'],92],[['budget','financial'],90],[['healthcare','life sciences'],88],[['cloud','saas','aws'],88],[['metrics','data-driven'],88],[['vendor','procurement'],88],[['innovation','research programs'],88],[['devops','ci/cd','cicd','azure devops'],85],[['api','integration'],85],[['infrastructure delivery'],84],[['ai','automation','computer vision','industrial ai'],82],[['hardware','systems'],78],[['npi','product lifecycle'],78],[['cybersecurity'],68],[['automotive','adas'],65]];for(const[keys,grade]of aliases)if(keys.some(k=>s.includes(k)))return grade;return 70}
 const Knowledge=({skill}:{skill:string})=>{const n=knowledgeGrade(skill);const label=n>=90?'Expert':n>=80?'Advanced':n>=70?'Proficient':'Familiar';return <div className="flex items-center gap-2"><span className={`rounded-full px-2 py-1 text-xs font-bold ${n>=90?'bg-emerald-100 text-emerald-700':n>=80?'bg-sky-100 text-sky-700':n>=70?'bg-indigo-100 text-indigo-700':'bg-slate-100 text-slate-600'}`}>{n}%</span><span className="text-xs text-slate-500">{label}</span></div>}
 function Login(){const[e,setE]=useState(''),[p,setP]=useState(''),[err,setErr]=useState('');return <div className="grid min-h-screen place-items-center bg-slate-100"><form onSubmit={async x=>{x.preventDefault();const{error}=await supabase.auth.signInWithPassword({email:e,password:p});if(error)setErr(error.message)}} className="w-full max-w-sm rounded-2xl border bg-white p-6 shadow"><BriefcaseBusiness className="mx-auto text-indigo-600" size={42}/><h1 className="text-center text-2xl font-bold">JobTrack</h1><input required type="email" placeholder="Email" value={e} onChange={x=>setE(x.target.value)} className="mt-5 w-full rounded-lg border p-2"/><input required type="password" placeholder="Password" value={p} onChange={x=>setP(x.target.value)} className="mt-3 w-full rounded-lg border p-2"/>{err&&<p className="text-xs text-red-600">{err}</p>}<button className="mt-4 w-full rounded-lg bg-indigo-600 p-2 font-semibold text-white">Sign in</button></form></div>}
 function JobDetails({job,skills,onClose}:{job:Job;skills:JobSkill[];onClose:()=>void}){return <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/50 p-3 pt-8 md:p-8"><div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl"><div className="sticky top-0 flex items-start gap-3 rounded-t-2xl border-b bg-white p-5"><div className="min-w-0 flex-1"><p className="text-sm font-bold text-indigo-600">{job.company}</p><h2 className="text-xl font-bold md:text-2xl">{job.position}</h2><p className="mt-1 text-sm text-slate-500">{job.location} · {job.work_mode||'—'}</p></div><Fit n={job.fit_score}/><button onClick={onClose} className="rounded-lg border p-2"><X size={18}/></button></div><div className="grid gap-5 p-5 md:grid-cols-[1fr_1.25fr]"><section><h3 className="font-bold">Job information</h3><div className="mt-3 grid grid-cols-2 gap-2 text-sm"><div className="rounded-lg bg-slate-50 p-3"><span className="text-xs text-slate-500">Status</span><div className="font-semibold">{job.status||'New'}</div></div><div className="rounded-lg bg-slate-50 p-3"><span className="text-xs text-slate-500">Priority</span><div className="font-semibold">{job.priority||'—'}</div></div><div className="rounded-lg bg-slate-50 p-3"><span className="text-xs text-slate-500">Source</span><div className="font-semibold">{job.source||'—'}</div></div><div className="rounded-lg bg-slate-50 p-3"><span className="text-xs text-slate-500">Added</span><div className="font-semibold">{date(job.insertion_date)}</div></div></div>{job.description&&<><h3 className="mt-5 font-bold">Job description</h3><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{cleanDescription(job.description)}</p></>}{job.next_action&&<><h3 className="mt-5 font-bold">Next action</h3><p className="mt-2 text-sm text-slate-600">{job.next_action}</p></>}{job.source_url&&<a href={job.source_url} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-1 rounded-lg border border-indigo-200 px-3 py-2 text-sm font-bold text-indigo-700">View original job <ExternalLink size={14}/></a>}</section><section><div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4"><div className="flex items-center gap-2"><Brain size={20} className="text-indigo-600"/><h3 className="text-lg font-bold">Capabilities needed for this job</h3></div><p className="mt-1 text-xs text-slate-500">Required capabilities identified for this specific role, ordered by importance.</p><div className="mt-4 space-y-2">{skills.length?skills.map((s,i)=><div key={`${s.skill}-${i}`} className="rounded-lg border bg-white p-3"><div className="flex items-center gap-3"><div className="min-w-0 flex-1"><div className="font-semibold">{s.skill}</div><div className="text-xs text-slate-500">{s.category||'Capability'}</div></div><Knowledge skill={s.skill}/><span className="text-xs font-bold text-slate-500">{s.importance}/5</span></div></div>):<div className="rounded-lg border border-dashed bg-white p-4 text-sm text-slate-500">No capabilities have been mapped for this job yet.</div>}</div></div>{job.notes&&<><h3 className="mt-5 font-bold">Notes</h3><p className="mt-2 text-sm text-slate-600">{job.notes}</p></>}</section></div></div></div>}
